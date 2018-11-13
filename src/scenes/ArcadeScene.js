@@ -52,11 +52,25 @@ export default class extends Phaser.Scene {
             repeat: -1
         });
 
-        // add collisions
-        this.physics.add.collider(this.player, this.platforms);
-
         // add cursor keys
         this.cursors = this.input.keyboard.createCursorKeys();
+
+        // add stars
+        this.stars = this.physics.add.group({
+            key: 'star',
+            repeat: 11,
+            setXY: { x: 12, y: 0, stepX: 70 }
+        });
+
+        this.stars.children.iterate((child) => {
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        });
+
+        // add collisions
+        this.physics.add.collider(this.player, this.platforms);
+        this.physics.add.collider(this.stars, this.platforms);
+
+        this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this);
     }
 
     update() {
@@ -74,5 +88,9 @@ export default class extends Phaser.Scene {
         if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-330);
         }
+    }
+
+    collectStar(player, star) {
+        star.disableBody(true, true);
     }
 }
